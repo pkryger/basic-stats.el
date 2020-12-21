@@ -2,12 +2,15 @@ name: CI
 
 on:
   pull_request:
+    paths-ignore:
+      - '**.md'
+      - '.github/**'
+      - '.gitignore'
   push:
-
-paths-ignore:
-  - '**.md'
-  - '.github/**'
-  - '.gitignore'
+    paths-ignore:
+      - '**.md'
+      - '.github/**'
+      - '.gitignore'
 
 jobs:
   test:
