@@ -5,7 +5,6 @@ set -e
 
 EMACS="${EMACS:=emacs}"
 
-
 ${EMACS} -Q -batch \
          -L . \
          --eval "(setq byte-compile-error-on-warn t)" \
