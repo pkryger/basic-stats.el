@@ -1,1 +1,3 @@
 *.elc
+/basic-stats-autoloads.el
+/basic-stats-pkg.el
