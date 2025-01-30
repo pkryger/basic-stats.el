@@ -1,13 +1,18 @@
-;;; basic-stats.el --- Unit tests for basic-stats.el
+;;; basic-stats.el --- Basic statistic functions     -*- lexical-binding: t -*-
 
-;;; Author: Przemysław Kryger <pkryger@gmail.com>
+
+;; Author: Przemyslaw Kryger <pkryger@gmail.com>
+;; Keywords: tools statistics
+;; Homepage: https://github.com/pkryger/basic-stats.el
+;; Package-Requires: ((emacs "28.1"))
+;; Version: 0.0.0
 
 ;;; This file is not a part of GNU Emacs.
 
 ;;; Commentary:
 
-;;; Provide a few basic functions for statistics.
-;;; Quartiles are implemented as per https://en.wikipedia.org/wiki/Quartile.
+;; Provide a few basic functions for statistics.
+;; Quartiles are implemented as per https://en.wikipedia.org/wiki/Quartile.
 
 ;;; License:
 
@@ -36,14 +41,11 @@
 ;;; Code:
 
 (require 'cl-lib)
-(require 'cl-macs)
-(require 'cl-seq)
 (require 'seq)
 
-;;;###autoload
-(defun pk/quartile--internal (sequence quartile &optional method)
+(defun basic-stats-quartile--internal (sequence quartile &optional method)
   "Return a given QUARTILE of a sorted SEQUENCE.
-The optional METHOD is the same as in `pk/quartile'."
+The optional METHOD is the same as in `basic-stats-quartile'."
   (let* ((length (length sequence))
          (offset (if (and (cl-oddp length)
                           (eq method :include))
@@ -70,7 +72,7 @@ The optional METHOD is the same as in `pk/quartile'."
                                  offset))))))))
 
 ;;;###autoload
-(defun pk/quartile (sequence quartile &optional method sorted)
+(defun basic-stats-quartile (sequence quartile &optional method sorted)
   "Return a given QUARTILE for the specified SEQUENCE.
 
 When the optional METHOD is nil or `:exclude', the value is returned according
@@ -84,38 +86,43 @@ Return nil unless one of:
 - QUARTILE is one of 1, 2, or 3,
 - SEQUENCE length is >=1 and QUARTILE is 2,
 - SEQUENCE length is >=2 and QUARTILE is one of 1 or 3."
-  (pk/quartile--internal (if sorted
+  (basic-stats-quartile--internal (if sorted
                              sequence
                            (cl-sort sequence '<))
                          quartile method))
 
 ;;;###autoload
-(defun pk/median (sequence &optional sorted)
+(defun basic-stats-median (sequence &optional sorted)
   "Return a median for the specified SEQUENCE.
-The optional SORTED is the same as in `pk/quartile'."
-  (pk/quartile sequence 2 nil sorted))
+The optional SORTED is the same as in `basic-stats-quartile'."
+  (basic-stats-quartile sequence 2 nil sorted))
 
-(defun pk/five-nums (sequence &optional method sorted)
+;;;###autoload
+(defun basic-stats-five-nums (sequence &optional method sorted)
   "Return a list consisting of (min q1 med q3 max) for the specified SEQUENCE.
-The optional METHOD and SORTED are the same as in `pk/quartile'.
+The optional METHOD and SORTED are the same as in `basic-stats-quartile'.
 When some values cannot be calculated they are set to nil."
   (if (and (not sorted) sequence)
       (setq sequence (cl-sort sequence '<)))
   (list (when sequence (seq-min sequence))
-        (pk/quartile sequence 1 method t)
-        (pk/median sequence t)
-        (pk/quartile sequence 3 method t)
+        (basic-stats-quartile sequence 1 method t)
+        (basic-stats-median sequence t)
+        (basic-stats-quartile sequence 3 method t)
         (when sequence (seq-max sequence))))
 
 ;;;###autoload
-(defun pk/five-nums-with-header (sequence &optional method sorted)
-  "Return a result of `pk/five-nums' for the specified SEQUENCE with a header.
+(defun basic-stats-five-nums-with-header (sequence &optional method sorted)
+  "Return`basic-stats-five-nums' for the specified SEQUENCE with a header.
 This is meant as a convenience function for `org-mode' code block to be used
 with ':output table'.  The optional METHOD and SORTED are the same as in
-`pk/quartile'."
+`basic-stats-quartile'."
   (list (list "min" "q1" "med" "q3" "max")
         'hline
-        (pk/five-nums sequence method sorted)))
+        (basic-stats-five-nums sequence method sorted)))
+
+
+;; LocalWords: quartile el
 
 (provide 'basic-stats)
-;;; basic-stats ends here
+
+;;; basic-stats.el ends here

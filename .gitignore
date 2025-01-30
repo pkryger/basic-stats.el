@@ -1,3 +1,11 @@
+# Compiled
 *.elc
-/basic-stats-autoloads.el
-/basic-stats-pkg.el
+
+# Packaging
+.cask
+
+# Backup files
+*~
+
+# Undo-tree save-files
+*.~undo-tree
