@@ -35,6 +35,11 @@
 
 ;;; Code:
 
+(when-let* ((dir (file-name-directory (or load-file-name
+                                          byte-compile-current-file
+                                          buffer-file-name))))
+  (load-file (file-name-concat dir "undercover-init.el")))
+
 (require 'basic-stats)
 (require 'ert)
 
