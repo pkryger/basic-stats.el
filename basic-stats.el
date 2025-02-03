@@ -124,19 +124,19 @@ with ':output table'.  The optional METHOD and SORTED are the same as in
   "Convert TIME to a human readable format."
   (cond
    ((null time) nil)
-   ((= 0 time) "0")
+   ((= 0 time) "0.000s")
    ((<= 3600 time)
     (let* ((hours (floor (/ time 3600)))
            (fseconds (- time (* hours 3600)))
            (seconds (floor fseconds)))
-      (format "%dh %dmin %d.%ds"
+      (format "%dh %dmin %d.%03ds"
               hours
               (/ seconds 60)
               (% seconds 60)
               (* 1000 (- fseconds seconds)))))
    ((<= 60 time)
     (let ((seconds (floor time)))
-      (format "%dmin %d.%ds"
+      (format "%dmin %d.%03ds"
               (/ seconds 60)
               (% seconds 60)
               (* 1000 (- time seconds)))))
