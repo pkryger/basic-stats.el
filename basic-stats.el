@@ -289,24 +289,24 @@ keys:
           (aset plan j (aref plan i))
           (aset plan i tmp))))
     (append `(let (,resultsvar))
-            (mapcar (lambda (elt)
-                      (let ((sample
-                             `(push
-                               (benchmark-call
-                                (lambda ()
-                                  ,@(let ((func (cadr (assq elt specs))))
-                                      (if (and (listp func)
-                                               (eq 'progn (car func)))
-                                          (cdr func)
-                                        (list func))))
-                                ,max-time)
-                               (alist-get ',elt ,resultsvar))))
-                        (if gc-before
-                            `(progn
-                               (garbage-collect)
-                               ,sample)
-                          sample)))
-                    plan)
+            (apply #'append
+                   (mapcar (lambda (elt)
+                             (let ((sample
+                                    `(push
+                                      (benchmark-call
+                                       (lambda ()
+                                         ,@(let ((func (cadr (assq elt specs))))
+                                             (if (and (listp func)
+                                                      (eq 'progn (car func)))
+                                                 (cdr func)
+                                               (list func))))
+                                       ,max-time)
+                                      (alist-get ',elt ,resultsvar))))
+                               (if gc-before
+                                   `((garbage-collect)
+                                     ,sample)
+                                 `(,sample))))
+                           plan))
             `((mapcar (lambda (result)
                         (cons (car result)
                               (basic-stats--convert-result (cdr result)
