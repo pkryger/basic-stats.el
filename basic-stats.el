@@ -271,7 +271,7 @@ keys:
    average times of collected samples, where times include total
    run time, while times-sans-gc substracts garbage collection
    running time for a given sample from a time of a given sample."
-  (declare (indent 1))
+  (declare (indent 1) (debug (&rest (symbolp form))))
   (let ((max-time (/ (float time) samples))
         (gc-before (eval gc-before))
         (plan (apply #'vconcat
