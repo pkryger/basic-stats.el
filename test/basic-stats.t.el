@@ -506,6 +506,53 @@
           (should (numberp .q3))
           (should (numberp .max)))))))
 
+(ert-deftest basic-stats-tests-benchmark-no-gc ()
+  (eval
+   `(let* ((result 0)
+           (report (basic-stats-benchmark ((f1 (cl-incf result))
+                                           (f2 (format "%s" result)))
+                     :time .0001
+                     :gc-before nil)))
+      (should (< 0 result))
+      (should (assq 'f1 report))
+      (should (assq 'f2 report))
+      (let-alist (alist-get 'f1 report)
+        (should .repetitions)
+        (should (stringp .total-time))
+        (should (stringp .mean-time))
+        (should .gc)
+        (should (stringp .gc-time))
+        (let-alist .times
+          (should (stringp .min))
+          (should (stringp .q1))
+          (should (stringp .med))
+          (should (stringp .q3))
+          (should (stringp .max)))
+        (let-alist .times-sans-gc
+          (should (stringp .min))
+          (should (stringp .q1))
+          (should (stringp .med))
+          (should (stringp .q3))
+          (should (stringp .max))))
+      (let-alist (alist-get 'f2 report)
+        (should .repetitions)
+        (should (stringp .total-time))
+        (should (stringp .mean-time))
+        (should .gc)
+        (should (stringp .gc-time))
+        (let-alist .times
+          (should (stringp .min))
+          (should (stringp .q1))
+          (should (stringp .med))
+          (should (stringp .q3))
+          (should (stringp .max)))
+        (let-alist .times-sans-gc
+          (should (stringp .min))
+          (should (stringp .q1))
+          (should (stringp .med))
+          (should (stringp .q3))
+          (should (stringp .max)))))))
+
 (ert-deftest basic-stats-tests-benchmark-progn ()
   (eval
    `(let* ((result 0)

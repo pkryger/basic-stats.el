@@ -221,7 +221,8 @@ as strings with time units."
 
 ;;;###autoload
 (cl-defmacro basic-stats-benchmark
-    (specs &key (samples 12) (time .5) (interleave t) (human-readable t))
+    (specs
+     &key (samples 12) (time .5) (interleave t) (human-readable t) (gc-before t))
   "Perform benchmark of specified SPECS.
 Each element of SPECS is a list (SYMBOL FORM) where symbol is
 a user specified name and FORM is the form to be benchmarked.  If
@@ -250,6 +251,10 @@ When HUMAN-READABLE is non-nil duration values in the returned
 value are strings with unit suffixes, for example h, min, s, ms,
 µs, ns, ps.
 
+When GC-BEFORE is non-nil then `garbage-collect' is called before each
+sample.  Otherwise, when GC-BEFORE is nil, there are no calls to
+`garbage-collect'.
+
 The value returned is an alist where each element is in a form
 of (SYMBOL . REPORT).  The REPORT is an alist with the following
 keys:
@@ -268,6 +273,7 @@ keys:
    running time for a given sample from a time of a given sample."
   (declare (indent 1))
   (let ((max-time (/ (float time) samples))
+        (gc-before (eval gc-before))
         (plan (apply #'vconcat
                      (mapcar (lambda (binding)
                                (make-vector samples (car binding)))
@@ -284,15 +290,22 @@ keys:
           (aset plan i tmp))))
     (append `(let (,resultsvar))
             (mapcar (lambda (elt)
-                      `(push
-                        (benchmark-call
-                         (lambda ()
-                           ,@(let ((func (cadr (assq elt specs))))
-                               (if (and (listp func) (eq 'progn (car func)))
-                                   (cdr func)
-                                 (list func))))
-                         ,max-time)
-                        (alist-get ',elt ,resultsvar)))
+                      (let ((sample
+                             `(push
+                               (benchmark-call
+                                (lambda ()
+                                  ,@(let ((func (cadr (assq elt specs))))
+                                      (if (and (listp func)
+                                               (eq 'progn (car func)))
+                                          (cdr func)
+                                        (list func))))
+                                ,max-time)
+                               (alist-get ',elt ,resultsvar))))
+                        (if gc-before
+                            `(progn
+                               (garbage-collect)
+                               ,sample)
+                          sample)))
                     plan)
             `((mapcar (lambda (result)
                         (cons (car result)
