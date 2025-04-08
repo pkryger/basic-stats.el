@@ -272,14 +272,16 @@ keys:
    run time, while times-sans-gc substracts garbage collection
    running time for a given sample from a time of a given sample."
   (declare (indent 1) (debug (&rest (symbolp form))))
-  (let ((max-time (/ (float time) samples))
-        (gc-before (eval gc-before))
-        (plan (apply #'vconcat
-                     (mapcar (lambda (binding)
-                               (make-vector samples (car binding)))
-                             specs)))
-        (resultsvar (make-symbol "results")))
-    (when (and interleave
+  (let* ((samples (eval samples))
+         (gc-before (eval gc-before))
+         (human-readable (eval human-readable))
+         (max-time (/ (float (eval time)) samples))
+         (plan (apply #'vconcat
+                      (mapcar (lambda (binding)
+                                (make-vector samples (car binding)))
+                              specs)))
+         (resultsvar (make-symbol "results")))
+    (when (and (eval interleave)
                (< 1 (length specs)))
       ;; https://en.wikipedia.org/wiki/Fisher–Yates_shuffle#The_modern_algorithm
       (dotimes (n (1- (length plan)))
