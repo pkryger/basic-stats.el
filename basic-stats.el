@@ -303,9 +303,9 @@ keys:
                                        ,max-time)
                                       (alist-get ',elt ,resultsvar))))
                                (if gc-before
-                                   `((garbage-collect)
-                                     ,sample)
-                                 `(,sample))))
+                                   (list '(garbage-collect)
+                                         sample)
+                                 (list sample))))
                            plan))
             `((mapcar (lambda (result)
                         (cons (car result)
