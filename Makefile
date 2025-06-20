@@ -4,6 +4,7 @@ CASK_DIR := $(shell cask package-directory)
 files = $$(cask files | grep -Ev 'basic-stats-(pkg|autoloads).el')
 test_files = $(wildcard test/basic-stats*.t.el)
 
+.PHONY: cask-install
 cask-install:
 	cask install
 
